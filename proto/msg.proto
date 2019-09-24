@@ -13,18 +13,17 @@ message GwError {
     string message = 2;
 }
 
-message Method1Request {
+message HeartBeat {
+}
 
+message Method1Request {
 }
 
 message Method1Reply {
-
 }
 
 message Method2Request {
-
 }
 
 message Method2Reply {
-
 }
