@@ -36,7 +36,8 @@ service TcpGateway {
     // 注释
     // @transmit
     // @target backendsvr1 后端目标服务名
-    // @id 2 对应请求协议的id
+    // @upid 2 对应请求协议的id
+    // @downid 3 对应响应协议的id
     rpc Method1(Method1Request) returns(Method1Reply) {
         option (google.api.http) = {
             post: "/v1/gw/method1"
@@ -48,7 +49,8 @@ service TcpGateway {
     // 注释
     // @transmit
     // @target backendsvr2 后端目标服务名
-    // @id 3 对应请求协议的id
+    // @upid 4 对应请求协议的id
+    // @downid 5 对应响应协议的id
     rpc Method2(Method2Request) returns(Method2Reply) {
         option (google.api.http) = {
             post: "/v1/gw/method2"
