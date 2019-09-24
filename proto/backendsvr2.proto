@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.zqnet.GWproto";
+option java_outer_classname = "GWproto";
+option objc_class_prefix = "GWproto";
+
+package gwproto;
+
+import "msg.proto";
+
+service Backendsvr2 {
+    rpc Method2(Method2Request) returns(Method2Reply){}
+}

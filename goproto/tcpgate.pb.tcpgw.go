@@ -2,11 +2,11 @@
 // source: tcpgate.proto
 
 /*
-Package gwProto is a tcp/ws proxy.
+Package gwproto is a tcp/ws proxy.
 
 It translates protobuf/Json packet into gRPC APIs.
 */
-package gwProto
+package gwproto
 
 import (
 	"context"
@@ -24,9 +24,9 @@ import (
 // define func
 type registerHandler func(args *TransmitArgs) (err error)
 
-type transmit_Backendsvr2_Handler func(*TransmitArgs, Backendsvr2Client) (proto.Message, error)
-
 type transmit_Backendsvr1_Handler func(*TransmitArgs, Backendsvr1Client) (proto.Message, error)
+
+type transmit_Backendsvr2_Handler func(*TransmitArgs, Backendsvr2Client) (proto.Message, error)
 
 type TransmitArgs struct {
 	Method       string
@@ -44,31 +44,31 @@ var (
 	// tag @id to package.TargetService/Method map
 	id2meth = map[uint16]string{
 
-		4: "gwProto.Backendsvr2/Method2",
-		2: "gwProto.Backendsvr1/Method1",
+		2: "gwproto.Backendsvr1/Method1",
+		4: "gwproto.Backendsvr2/Method2",
 	}
 
 	meth2id = map[string]uint16{}
 
 	id2struct = map[uint16]proto.Message{
 
-		4: &Method2Request{},
-		5: &Method2Reply{},
 		2: &Method1Request{},
 		3: &Method1Reply{},
+		4: &Method2Request{},
+		5: &Method2Reply{},
 	}
 
 	structName2id = map[string]string{
 
-		"Method2Request": 4,
-		"Method2Reply":   5,
 		"Method1Request": 2,
 		"Method1Reply":   3,
+		"Method2Request": 4,
+		"Method2Reply":   5,
 	}
 
-	transmit_Backendsvr2_Map = map[string]transmit_Backendsvr2_Handler{}
-
 	transmit_Backendsvr1_Map = map[string]transmit_Backendsvr1_Handler{}
+
+	transmit_Backendsvr2_Map = map[string]transmit_Backendsvr2_Handler{}
 
 	serviceMap = map[string]registerHandler{}
 )
@@ -80,13 +80,13 @@ func init() {
 
 	// todo something handler
 
-	transmit_Backendsvr2_Map["gwProto.Backendsvr2/Method2"] = request_Backendsvr2_Method2
+	transmit_Backendsvr1_Map["gwproto.Backendsvr1/Method1"] = request_Backendsvr1_Method1
 
-	transmit_Backendsvr1_Map["gwProto.Backendsvr1/Method1"] = request_Backendsvr1_Method1
+	transmit_Backendsvr2_Map["gwproto.Backendsvr2/Method2"] = request_Backendsvr2_Method2
 
-	serviceMap["gwProto.Backendsvr2"] = register_Backendsvr2_Transmitor
+	serviceMap["gwproto.Backendsvr1"] = register_Backendsvr1_Transmitor
 
-	serviceMap["gwProto.Backendsvr1"] = register_Backendsvr1_Transmitor
+	serviceMap["gwproto.Backendsvr2"] = register_Backendsvr2_Transmitor
 
 }
 
@@ -159,52 +159,6 @@ func RegisterTransmitor(args *TransmitArgs) error {
 // *********************************************************************************
 // 注册TcpGateway传输转换入口
 
-func register_Backendsvr2_Transmitor(args *TransmitArgs) (err error) {
-	if args.Conn == nil {
-		conn, err := grpc.Dial(args.Endpoint, args.Opts...)
-		if err != nil {
-			return err
-		}
-		defer conn.Close()
-		args.Conn = conn
-	}
-
-	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
-	ctx = metadata.NewOutgoingContext(ctx, args.MD)
-	args.ctx = ctx
-	//
-	client := NewBackendsvr2Client(args.Conn)
-	handler, ok := transmit_Backendsvr2_Map[args.Method]
-	if !ok {
-		return errors.New("method error")
-	}
-	res, err := handler(args, client)
-	if err != nil {
-		return err
-	}
-	args.DoneCallback(res)
-	return nil
-}
-
-// 注册Backendsvr2/Method2 传输方法入口
-// 后端服务2
-// 注释
-func request_Backendsvr2_Method2(args *TransmitArgs, client Backendsvr2Client) (proto.Message, error) {
-	protoReq := &Method2Request{}
-	if err := decodeBytes(args.Data, args.Codec, protoReq); err != nil {
-		return nil, errors.New("codec err[" + err.Error() + "]")
-	}
-	reply, err := client.Method2(args.ctx, protoReq)
-	if err != nil {
-		return nil, errors.New("call err[" + err.Error() + "]")
-	}
-	return reply, nil
-}
-
-// *********************************************************************************
-// 注册TcpGateway传输转换入口
-
 func register_Backendsvr1_Transmitor(args *TransmitArgs) (err error) {
 	if args.Conn == nil {
 		conn, err := grpc.Dial(args.Endpoint, args.Opts...)
@@ -242,6 +196,52 @@ func request_Backendsvr1_Method1(args *TransmitArgs, client Backendsvr1Client) (
 		return nil, errors.New("codec err[" + err.Error() + "]")
 	}
 	reply, err := client.Method1(args.ctx, protoReq)
+	if err != nil {
+		return nil, errors.New("call err[" + err.Error() + "]")
+	}
+	return reply, nil
+}
+
+// *********************************************************************************
+// 注册TcpGateway传输转换入口
+
+func register_Backendsvr2_Transmitor(args *TransmitArgs) (err error) {
+	if args.Conn == nil {
+		conn, err := grpc.Dial(args.Endpoint, args.Opts...)
+		if err != nil {
+			return err
+		}
+		defer conn.Close()
+		args.Conn = conn
+	}
+
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
+	ctx = metadata.NewOutgoingContext(ctx, args.MD)
+	args.ctx = ctx
+	//
+	client := NewBackendsvr2Client(args.Conn)
+	handler, ok := transmit_Backendsvr2_Map[args.Method]
+	if !ok {
+		return errors.New("method error")
+	}
+	res, err := handler(args, client)
+	if err != nil {
+		return err
+	}
+	args.DoneCallback(res)
+	return nil
+}
+
+// 注册Backendsvr2/Method2 传输方法入口
+// 后端服务2
+// 注释
+func request_Backendsvr2_Method2(args *TransmitArgs, client Backendsvr2Client) (proto.Message, error) {
+	protoReq := &Method2Request{}
+	if err := decodeBytes(args.Data, args.Codec, protoReq); err != nil {
+		return nil, errors.New("codec err[" + err.Error() + "]")
+	}
+	reply, err := client.Method2(args.ctx, protoReq)
 	if err != nil {
 		return nil, errors.New("call err[" + err.Error() + "]")
 	}

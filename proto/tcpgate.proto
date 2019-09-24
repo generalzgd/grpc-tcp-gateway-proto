@@ -5,31 +5,13 @@ option java_package = "com.zqnet.GWproto";
 option java_outer_classname = "GWproto";
 option objc_class_prefix = "GWproto";
 
-package gwProto;
+package gwproto;
 
 import "google/api/annotations.proto";
+import "msg.proto";
 
-//
-message GwError {
-    uint32 code = 1;
-    string message = 2;
-}
 
-message Method1Request {
 
-}
-
-message Method1Reply {
-
-}
-
-message Method2Request {
-
-}
-
-message Method2Reply {
-
-}
 
 service TcpGateway {
     // 后端服务1

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.zqnet.GWproto";
+option java_outer_classname = "GWproto";
+option objc_class_prefix = "GWproto";
+
+package gwproto;
+
+//
+message GwError {
+    uint32 code = 1;
+    string message = 2;
+}
+
+message Method1Request {
+
+}
+
+message Method1Reply {
+
+}
+
+message Method2Request {
+
+}
+
+message Method2Reply {
+
+}
