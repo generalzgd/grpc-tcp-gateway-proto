@@ -58,7 +58,7 @@ var (
 		5: &Method2Reply{},
 	}
 
-	structName2id = map[string]string{
+	structName2id = map[string]uint16{
 
 		"Method1Request": 2,
 		"Method1Reply":   3,
