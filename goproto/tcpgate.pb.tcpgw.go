@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/generalzgd/comm-libs"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -55,6 +56,14 @@ var (
 		5: &Method2Reply{},
 		2: &Method1Request{},
 		3: &Method1Reply{},
+	}
+
+	structName2id = map[string]string{
+
+		"Method2Request": 4,
+		"Method2Reply":   5,
+		"Method1Request": 2,
+		"Method1Reply":   3,
 	}
 
 	transmit_Backendsvr2_Map = map[string]transmit_Backendsvr2_Handler{}
@@ -105,7 +114,13 @@ func GetIdByMeth(meth string) uint16 {
 
 // 根据@id/@upid/@downid标签获取对应方法的请求参数对象
 func GetMsgObjById(id uint16) proto.Message {
-	return id2struct[id]
+	v := id2struct[id]
+	return v
+}
+
+func GetIdByMsgObj(obj proto.Message) uint16 {
+	name := comm_libs.GetStructName(obj)
+	return structName2id[name]
 }
 
 func ParseMethod(method string) (string, string, string, error) {
